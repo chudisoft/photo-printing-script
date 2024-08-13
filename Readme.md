@@ -91,3 +91,55 @@ To run the script with a specific folder and position:
 ```
     python print_photo.py
 ```
+
+# PDF Coordinate System for Image Placement
+
+In a PDF file, the coordinate system starts from the bottom-left corner, meaning:
+
+- **X position** is measured from the left edge of the page.
+- **Y position** is measured from the bottom edge of the page.
+
+### A4 Page Dimensions
+
+- **Width:** 595 points
+- **Height:** 842 points
+
+### Positioning the Image
+
+To place the image at the very top of the page, set the `y` value close to 842 points, minus the height of the image. 
+
+**Calculation for Y Value:**
+
+If you want the top edge of the image to start exactly at the top of the page, you can calculate the `y` value as follows:
+
+```
+    y = 842 - image_height
+```
+
+This ensures that the top edge of the image aligns with the top edge of the page.
+
+### Example:
+
+If your image height is 200 points, then:
+
+```
+    y = 842 - 200 = 642
+```
+
+So, setting y = 642 will place the image such that its top edge aligns with the top of the page.
+
+### Adjusting for Margins
+
+If you want to add a margin from the top, reduce the y value slightly. For example, to add a 10-point margin:
+
+```
+    y = 842 - 200 - 10 = 632
+```
+
+### Recap
+
+- y = 0: Image bottom edge aligns with the bottom of the page.
+- y = 842: Image bottom edge aligns with the top of the page (image is off-page).
+- y = 842 - image_height: Image top edge aligns with the top of the page.
+
+Set your y value accordingly based on the image size and desired position.
