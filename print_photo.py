@@ -4,107 +4,80 @@ import time
 from PIL import Image
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-import subprocess
+import random
+import string
+import platform
 
-def capture_photo(save_folder):
+def capture_photo(save_folder, filename):
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Cannot open camera")
-        return None
+        return
     ret, frame = cap.read()
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
-        return None
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    filename = os.path.join(save_folder, f"photo_{timestamp}.jpg")
-    cv2.imwrite(filename, frame)
-    print(f"Photo saved to {filename}")
+        return
+    filepath = os.path.join(save_folder, filename)
+    cv2.imwrite(filepath, frame)
+    print(f"Photo saved to {filepath}")
     cap.release()
     cv2.destroyAllWindows()
-    return filename
+    return filepath
 
 def create_printable_pdf(image_path, output_path, position, size):
-    # Open the image
     img = Image.open(image_path)
-
-    # Create a canvas
     c = canvas.Canvas(output_path, pagesize=A4)
     x, y = position
     width, height = size
-
-    # Draw the image at the specified position with the specified size
     c.drawImage(image_path, x, y, width=width, height=height)
-
-    # Save the PDF
     c.showPage()
     c.save()
     print(f"Printable PDF saved to {output_path}")
 
 def print_pdf(pdf_path):
-    # Replace this with a method that works with your PDF reader
     try:
-        subprocess.run(['cmd', '/c', pdf_path], shell=True)
-        print(f"Printing {pdf_path}...")
+        if platform.system() == "Windows":
+            os.startfile(pdf_path, "print")
+        elif platform.system() == "Linux":
+            subprocess.run(["lp", pdf_path])
+        elif platform.system() == "Darwin":  # macOS
+            subprocess.run(["lp", pdf_path])
+        else:
+            print("Printing is not supported on this OS.")
     except Exception as e:
-        print(f"Error printing PDF: {e}")
+        print(f"Failed to print PDF: {e}")
 
-def get_validated_input(prompt, validation_fn, error_message):
-    while True:
-        try:
-            value = validation_fn(input(prompt))
-            return value
-        except ValueError:
-            print(error_message)
+def get_random_filename(extension=".jpg"):
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    return f"photo_{timestamp}_{random_str}{extension}"
 
-# Recurring operation until the user quits
+def get_user_input(prompt, default_value):
+    user_input = input(f"{prompt} (default: {default_value}): ")
+    return user_input.strip() if user_input else default_value
+
+# Default values
+default_folder = os.getcwd()
+default_filename = get_random_filename()
+
 while True:
-    # User-defined parameters
-    save_folder = get_validated_input(
-        "Enter the folder path to save the photo: ",
-        lambda x: x if os.path.isdir(x) else ValueError("Invalid path"),
-        "Please enter a valid directory path."
-    )
+    save_folder = get_user_input("Enter the folder path to save the photo", default_folder)
+    filename = get_user_input("Enter the photo filename", default_filename)
+    output_filename = get_user_input("Enter the file name for the output PDF (e.g., output.pdf)", "output.pdf")
 
-    x = get_validated_input(
-        "Enter the x position (points): ",
-        lambda x: int(x) if int(x) >= 0 else ValueError("Must be a non-negative integer"),
-        "Please enter a non-negative integer for the x position."
-    )
+    x = int(get_user_input("Enter the x position (points)", "0"))
+    y = int(get_user_input("Enter the y position (points)", "0"))
+    width = int(get_user_input("Enter the width (points)", "200"))
+    height = int(get_user_input("Enter the height (points)", "200"))
 
-    y = get_validated_input(
-        "Enter the y position (points): ",
-        lambda y: int(y) if int(y) >= 0 else ValueError("Must be a non-negative integer"),
-        "Please enter a non-negative integer for the y position."
-    )
+    position = (x, y)
+    size = (width, height)
 
-    width = get_validated_input(
-        "Enter the width (points): ",
-        lambda w: int(w) if int(w) > 0 else ValueError("Must be a positive integer"),
-        "Please enter a positive integer for the width."
-    )
+    photo_path = capture_photo(save_folder, filename)
+    output_path = os.path.join(save_folder, output_filename)
+    create_printable_pdf(photo_path, output_path, position, size)
+    print_pdf(output_path)
 
-    height = get_validated_input(
-        "Enter the height (points): ",
-        lambda h: int(h) if int(h) > 0 else ValueError("Must be a positive integer"),
-        "Please enter a positive integer for the height."
-    )
-
-    output_file_name = get_validated_input(
-        "Enter the file name for the output PDF (e.g., output.pdf): ",
-        lambda x: x if x.endswith(".pdf") else ValueError("Must end with .pdf"),
-        "Please enter a valid file name ending with .pdf."
-    )
-
-    output_path = os.path.join(save_folder, output_file_name)
-
-    # Workflow
-    photo_path = capture_photo(save_folder)
-    if photo_path:
-        create_printable_pdf(photo_path, output_path, (x, y), (width, height))
-        print_pdf(output_path)
-
-    # Check if the user wants to quit
-    should_quit = input("Do you want to quit? Type 'yes' to quit, or press Enter to continue: ").strip().lower()
-    if should_quit == 'yes':
-        print("Exiting...")
+    cont = input("Do you want to take another photo and print? (y/n): ").strip().lower()
+    if cont != 'y':
         break
