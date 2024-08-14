@@ -2,3 +2,5 @@ opencv-python  # For capturing images from the webcam
 Pillow          # For handling image files
 reportlab        # For generating PDFs with images
 watchdog
+python3-ghostscript
+pypiwin32
