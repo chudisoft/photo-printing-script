@@ -17,20 +17,22 @@ import ghostscript
 # Function to print PDF file
 def print_pdf(pdf_path):
     try:
-        if platform.system() == "Windows":
+        # if platform.system() == "Windows":
             # Windows uses the `start` command to print
             # subprocess.run(["start", "/p", pdf_path], shell=True, check=True)
+        
+        if platform.system() == "Windows":
+            # Setup the Ghostscript command arguments for printing
             args = [
-                "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
-                "-q",
-                "-dNumCopies#1",
-                "-sDEVICE#mswinpr2",
-                f'-sOutputFile#"%printer%{win32print.GetDefaultPrinter()}"',
-                f'"{pdf_path}"'
+                b"gs",  # Command for Ghostscript as bytes
+                b"-dPrinted", b"-dBATCH", b"-dNOSAFER", b"-dNOPAUSE", b"-dNOPROMPT",
+                b"-q",
+                b"-sDEVICE=mswinpr2",  # Device for Windows Printer
+                f'-sOutputFile=%printer%{win32print.GetDefaultPrinter()}'.encode(),  # Output to the default printer as bytes
+                pdf_path.encode()  # Path to the PDF file as bytes
             ]
 
-            encoding = locale.getpreferredencoding()
-            args = [a.encode(encoding) for a in args]
+            # Run Ghostscript command
             ghostscript.Ghostscript(*args)
         else:
             raise NotImplementedError("This script is intended for Windows OS.")

@@ -31,14 +31,17 @@ This project also provides Python script that captures a photo from a camera, sa
 
 ## Installation
 
-1. Clone the repository:
+1. Install GhostScript from:
+```https://ghostscript.com/releases/```
+
+2. Clone the repository:
 
 ```
     git clone https://github.com/chudisoft/photo-printing-script.git
     cd photo-printing-script
 ```
 
-2. Create a virtual environment for Python packages:
+3. Create a virtual environment for Python packages:
 
 ```
     python -m venv venv
@@ -48,7 +51,7 @@ This project also provides Python script that captures a photo from a camera, sa
     python3 -m venv venv
 ```
 
-3. Activate the Virtual Environment:
+4. Activate the Virtual Environment:
 
     **For macOS/Linux:**
 ```
@@ -60,7 +63,7 @@ This project also provides Python script that captures a photo from a camera, sa
     .\venv\Scripts\activate
 ```
 
-4. Install the required Python packages:
+5. Install the required Python packages:
 
 ```
     pip install -r requirements.txt
