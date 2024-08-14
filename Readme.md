@@ -1,8 +1,21 @@
-# Photo Printing Script
+# Auto Photo Printer
 
-This project provides a Python script that captures a photo from a camera, saves it, and prints the image in a specified position on an A4 paper. This is particularly useful for printing photos on pre-printed templates, such as newspaper-style layouts.
+## Overview
 
-## Features
+Auto Photo Printer is a Python-based script designed to automatically detect new JPEG or JPG images added to a specified folder, convert them to a printable PDF, and send them to the default printer. This script is tailored for Windows OS and is ideal for scenarios where automated image printing is required.
+
+This project also provides Python script that captures a photo from a camera, saves it, and prints the image in a specified position on an A4 paper. This is particularly useful for printing photos on pre-printed templates, such as newspaper-style layouts.
+
+## Features (auto_photo_printer.py)
+
+- **Automatic Image Detection**: The script monitors a specified folder and automatically processes new `.jpg` or `.jpeg` files added to the folder.
+- **Image-to-PDF Conversion**: Detected images are converted to a PDF format, positioned at specified coordinates on an A4-sized page.
+- **Automatic Printing**: The generated PDF is automatically sent to the default printer.
+- **Customizable Output**: Users can specify the position, width, and height of the image on the PDF.
+- **Default Folder Configuration**: The default folder for image monitoring is set to an `images` directory within the script's directory, which is created automatically if it doesn't exist.
+- **User-Friendly Controls**: The script provides clear instructions on how to terminate the process (`Ctrl+C`), and can be customized by the user for different coordinates and image sizes.
+
+## Features (print_photo.py)
 
 - Capture a photo using a webcam.
 - Save the captured photo to a specified folder.
@@ -87,6 +100,12 @@ This project provides a Python script that captures a photo from a camera, saves
 ## Example
 
 To run the script with a specific folder and position:
+
+```
+    python auto_photo_printer.py
+```
+
+or
 
 ```
     python print_photo.py
