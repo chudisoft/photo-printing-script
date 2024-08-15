@@ -69,9 +69,30 @@ class NewFileHandler(FileSystemEventHandler):
         self.height = height
 
     def on_created(self, event):
-        if event.src_path.lower().endswith('.jpg') or event.src_path.lower().endswith('.jpeg'):
-            print(f"Detected new file: {event.src_path}")
-            convert_image_to_pdf(event.src_path, self.x, self.y, self.width, self.height)
+        file_path = event.src_path.lower()
+        file_extension = os.path.splitext(file_path)[1]
+
+        # If the file is not .jpg or .jpeg, wait for stability
+        if not (file_extension == '.jpg' or file_extension == '.jpeg'):
+            print(f"Detected new non-JPG file: {file_path}. Waiting for it to be renamed...")
+            self.wait_for_file_stability(file_path)
+            print(f"File {file_path} is now stable.")
+
+        # Check again if the file is now a .jpg or .jpeg after waiting
+        if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+            print(f"Detected new file: {file_path}")
+            convert_image_to_pdf(file_path, self.x, self.y, self.width, self.height)
+
+    def wait_for_file_stability(self, file_path, wait_time=2):
+        """Wait for the file to be fully written and stable."""
+        previous_size = -1
+        while True:
+            current_size = os.path.getsize(file_path)
+            if current_size == previous_size:
+                break
+            previous_size = current_size
+            time.sleep(wait_time)  # Wait before checking the size again
+
 
 # Function to ensure the image directory exists
 def ensure_directory_exists(directory):
