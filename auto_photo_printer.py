@@ -13,14 +13,9 @@ import win32print
 import locale
 import ghostscript
 
-
 # Function to print PDF file
 def print_pdf(pdf_path):
     try:
-        # if platform.system() == "Windows":
-            # Windows uses the `start` command to print
-            # subprocess.run(["start", "/p", pdf_path], shell=True, check=True)
-        
         if platform.system() == "Windows":
             # Setup the Ghostscript command arguments for printing
             args = [
@@ -42,6 +37,11 @@ def print_pdf(pdf_path):
 # Function to convert image to PDF and save it
 def convert_image_to_pdf(image_path, x, y, width, height):
     try:
+        # Ensure the file exists before proceeding
+        if not os.path.exists(image_path):
+            print(f"File does not exist: {image_path}")
+            return
+
         # Create a temporary directory
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Generate a unique filename for the output PDF
@@ -60,8 +60,8 @@ def convert_image_to_pdf(image_path, x, y, width, height):
     except Exception as e:
         print(f"Error processing file {image_path}: {e}")
 
-# Event handler for new files
-class NewFileHandler(FileSystemEventHandler):
+# Event handler for file events
+class FileHandler(FileSystemEventHandler):
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
@@ -69,30 +69,23 @@ class NewFileHandler(FileSystemEventHandler):
         self.height = height
 
     def on_created(self, event):
+        self.process(event)
+
+    def on_modified(self, event):
+        self.process(event)
+
+    def on_moved(self, event):
+        # The file was renamed (e.g., .tmp to .jpg)
+        self.process(event)
+
+    def process(self, event):
+        if event.is_directory:
+            return
+
         file_path = event.src_path.lower()
-        file_extension = os.path.splitext(file_path)[1]
-
-        # If the file is not .jpg or .jpeg, wait for stability
-        if not (file_extension == '.jpg' or file_extension == '.jpeg'):
-            print(f"Detected new non-JPG file: {file_path}. Waiting for it to be renamed...")
-            self.wait_for_file_stability(file_path)
-            print(f"File {file_path} is now stable.")
-
-        # Check again if the file is now a .jpg or .jpeg after waiting
         if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
-            print(f"Detected new file: {file_path}")
+            print(f"Detected new or modified file: {file_path}")
             convert_image_to_pdf(file_path, self.x, self.y, self.width, self.height)
-
-    def wait_for_file_stability(self, file_path, wait_time=2):
-        """Wait for the file to be fully written and stable."""
-        previous_size = -1
-        while True:
-            current_size = os.path.getsize(file_path)
-            if current_size == previous_size:
-                break
-            previous_size = current_size
-            time.sleep(wait_time)  # Wait before checking the size again
-
 
 # Function to ensure the image directory exists
 def ensure_directory_exists(directory):
@@ -113,7 +106,7 @@ if __name__ == "__main__":
     height = int(input("Enter the height (points): ") or 200)
 
     # Create event handler
-    event_handler = NewFileHandler(x, y, width, height)
+    event_handler = FileHandler(x, y, width, height)
 
     # Set up observer
     observer = Observer()
