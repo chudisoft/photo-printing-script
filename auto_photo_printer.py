@@ -83,7 +83,7 @@ class FileHandler(FileSystemEventHandler):
             return
 
         file_path = event.src_path.lower()
-        if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+        if file_path.lower().endswith('.jpg') or file_path.lower().endswith('.jpeg'):
             print(f"Detected new or modified file: {file_path}")
             convert_image_to_pdf(file_path, self.x, self.y, self.width, self.height)
 
