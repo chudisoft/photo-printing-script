@@ -68,8 +68,15 @@ class FileHandler(FileSystemEventHandler):
         self.width = width
         self.height = height
 
-    def on_created(self, event):
+    # def on_created(self, event):
+    #     self.process(event)
+
+    def on_modified(self, event):
         self.process(event)
+
+    # def on_moved(self, event):
+    #     # The file was renamed (e.g., .tmp to .jpg)
+    #     self.process(event)
 
     def process(self, event):
         if event.is_directory:
