@@ -10,8 +10,11 @@ from reportlab.pdfgen import canvas
 import subprocess
 import platform
 import win32print
-import locale
 import ghostscript
+from datetime import datetime, timedelta
+
+# Dictionary to store the last printed time of files
+printed_files = {}
 
 # Function to print PDF file
 def print_pdf(pdf_path):
@@ -83,8 +86,22 @@ class FileHandler(FileSystemEventHandler):
             return
 
         file_path = event.src_path.lower()
+        time.sleep(1)
         if file_path.lower().endswith('.jpg') or file_path.lower().endswith('.jpeg'):
             print(f"Detected new or modified file: {file_path}")
+
+            print(printed_files)
+            # Check if the file was printed in the last 10 seconds
+            if file_path in printed_files:
+                last_print_time = printed_files[file_path]
+                if datetime.now() - last_print_time < timedelta(seconds=10):
+                    print(f"File {file_path} was printed less than 10 seconds ago. Skipping...")
+                    return
+            
+            # Update the last printed time
+            printed_files[file_path] = datetime.now()
+
+            # Convert the image to PDF and print it
             convert_image_to_pdf(file_path, self.x, self.y, self.width, self.height)
 
 # Function to ensure the image directory exists
