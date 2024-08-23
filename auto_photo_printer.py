@@ -2,6 +2,7 @@ import os
 import time
 import tempfile
 import uuid
+import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from PIL import Image
@@ -111,16 +112,29 @@ def ensure_directory_exists(directory):
 
 if __name__ == "__main__":
     # Default image directory
+    # Load configuration from JSON file
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_image_dir = os.path.join(script_dir, 'images')
-    ensure_directory_exists(default_image_dir)
+    # default_image_dir = os.path.join(script_dir, 'images')
+    config_path = os.path.join(script_dir, 'config.json')
+
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+
+    folder_path = config.get("folder_path")
+    x = config.get("x", 0)
+    y = config.get("y", 0)
+    width = config.get("width", 200)
+    height = config.get("height", 200)
+
+    ensure_directory_exists(folder_path)
 
     # Get user inputs
-    folder_path = input(f"Enter the folder path to watch for new images (default: {default_image_dir}): ") or default_image_dir
-    x = int(input("Enter the x position (points): ") or 0)
-    y = int(input("Enter the y position (points): ") or 0)
-    width = int(input("Enter the width (points): ") or 200)
-    height = int(input("Enter the height (points): ") or 200)
+    # folder_path = input(f"Enter the folder path to watch for new images (default: {default_image_dir}): ") or default_image_dir
+    # x = int(input("Enter the x position (points): ") or 0)
+    # y = int(input("Enter the y position (points): ") or 0)
+    # width = int(input("Enter the width (points): ") or 200)
+    # height = int(input("Enter the height (points): ") or 200)
 
     # Create event handler
     event_handler = FileHandler(x, y, width, height)
