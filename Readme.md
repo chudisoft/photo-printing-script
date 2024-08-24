@@ -73,12 +73,8 @@ This project also provides Python script that captures a photo from a camera, sa
 
 1. **Capture and Save Photo:**
 
-    The script captures a photo from the webcam and saves it to a specified folder.
+    Setup config.json or provide the options in the console.
 
-```
-    save_folder = "path_to_your_folder"
-    photo_path = capture_photo(save_folder)
-```
 
 2. **Print Photo on Pre-Printed Template:**
 
